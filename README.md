@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>あや式 なんでも主人公4コマ化 - 完全版 -</title>
+    <title>あや式 なんでも主人公4コマ化 - 万能完全版 -</title>
     <style>
         :root { 
             --bg-color: #0d0d0f;
@@ -15,15 +15,17 @@
         }
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--bg-color); padding: 20px 15px; text-align: center; color: var(--text-main); }
         .card { background: var(--card-bg); border-radius: 24px; padding: 30px 25px; max-width: 420px; margin: auto; border: 1px solid var(--border-color); }
-        h1 { background: var(--accent-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.5rem; margin-bottom: 5px; font-weight: 800; }
+        h1 { background: var(--accent-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.5rem; margin-bottom: 20px; font-weight: 800; }
         .input-group { text-align: left; margin-bottom: 22px; }
         label { font-size: 0.8rem; font-weight: 700; color: var(--text-gold); display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
         input[type="text"], textarea { width: 100%; padding: 14px; background: #1f1f23; border: 1px solid var(--border-color); border-radius: 12px; box-sizing: border-box; font-size: 16px; color: var(--text-main); }
+        
         .select-group { display: flex; gap: 6px; margin-top: 8px; justify-content: space-between; flex-wrap: wrap; }
-        .select-tile-label { flex: 1; min-width: 80px; text-align: center; cursor: pointer; }
-        .select-tile-label input[type="radio"] { opacity: 0; position: absolute; }
-        .select-tile { padding: 10px 4px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.7rem; font-weight: 700; background: #1f1f23; color: #a1a1aa; transition: 0.2s; }
-        input[type="radio"]:checked + .select-tile { background: var(--accent-gold); border-color: transparent; color: #0d0d0f; }
+        .select-tile-label { flex: 1; min-width: 80px; text-align: center; cursor: pointer; position: relative; }
+        .select-tile-label input[type="radio"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; }
+        .select-tile { padding: 10px 4px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.7rem; font-weight: 700; background: #1f1f23; color: #a1a1aa; transition: 0.2s; pointer-events: none; }
+        input[type="radio"]:checked + .select-tile { background: var(--accent-gold); border-color: transparent; color: #0d0d0f; font-weight: 800; }
+        
         .btn-generate { background: var(--accent-gold); color: #0d0d0f; border: none; width: 100%; padding: 18px; border-radius: 30px; font-weight: 800; cursor: pointer; margin-top: 10px; }
         #result-area { display: none; margin-top: 30px; text-align: left; }
         .prompt-text { font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; color: #e4e4e7; background: #1f1f23; padding: 15px; border-radius: 14px; border: 1px solid var(--border-color); }
@@ -87,18 +89,19 @@
         }
 
         var endingInstruction = "";
-        if (ending === "funny") endingInstruction = "PANEL 4: Most effective comedic ending for " + features + ". Focus on pose/expression.";
+        if (ending === "funny") endingInstruction = "PANEL 4: Most effective comedic ending for " + features + ". Focus on dynamic pose/expression. Show a funny reaction.";
         else if (ending === "emotional") endingInstruction = "PANEL 4: Most touching resolution for " + features + ".";
         else if (ending === "calm") endingInstruction = "PANEL 4: Most cozy/relaxed conclusion. NO TEARS, NO WEEPING. Peaceful expression.";
         else if (ending === "special") endingInstruction = "PANEL 4: Dramatic/Shocking reaction for " + features + ".";
 
         var finalPrompt = "[ASPECT RATIO 9:32]\n" + strictRules + "\n\n" +
             "Style: Cinematic Manga. Character: " + features + "\n" +
-            "[FACTUAL CONSTRAINT: Do not change the story facts. Keep background and context consistent.]\n\n" +
-            "PANEL 1: Wide shot, establish context.\n" +
-            "PANEL 2: Close-up, dramatic reaction.\n" +
-            "PANEL 3: Medium shot, character action.\n" +
+            "[CRITICAL CONSTRAINT: Use the character's physical traits from the input. IGNORE the reference image's background, items, and secondary characters. Create a new, unique setting suitable for the story. Do not change the story facts. Keep background and context consistent across 4 panels.]\n\n" +
+            "PANEL 1: Wide shot, establish a new context and setting based on the story.\n" +
+            "PANEL 2: Close-up, dramatic reaction or facial expression.\n" +
+            "PANEL 3: Medium shot, character action from a creative angle.\n" +
             endingInstruction + "\n" + modeInstruction + "\n\n" +
+            "[DYNAMIC CAMERA: Use varying camera angles (low-angle, high-angle, side view, close-ups) for each panel. Do NOT repeat the same composition across panels. Make it look like a dynamic comic book.]\n\n" +
             "[STORY]:\n" + text;
 
         document.getElementById('promptText').innerText = finalPrompt;
