@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>あや式 なんでも主人公4コマ化 - 最新調整版 -</title>
+    <title>あや式 なんでも主人公4コマ化 - 進化版 -</title>
     <style>
         :root { 
             --bg-color: #0d0d0f;
@@ -57,7 +57,7 @@
         </div>
     </div>
     <div class="input-group">
-        <label>④ 原作テキスト</label>
+        <label>④ 原事テキスト</label>
         <textarea id="noteContent" placeholder="文章をペースト"></textarea>
     </div>
     <button class="btn-generate" onclick="generateMangaPrompt()">最強プロンプトを召喚</button>
@@ -78,8 +78,8 @@
         
         var modeInstruction = "", strictRules = "";
         if (mode === "ja") {
-            modeInstruction = "[DIALOGUE: JAPANESE] Prioritize engaging, humorous, and emotionally resonant storytelling. Use natural, lively Japanese dialogue that fits the character's personality. If you encounter complex text, prioritize visual clarity and the 'feel' of the manga over strict character accuracy. Make it fun and dramatic.";
-            strictRules = "[PROHIBITION: NO ENGLISH. Focus on high-quality, engaging manga narrative in Japanese. If text rendering fails, ensure the scene remains visually captivating.]";
+            modeInstruction = "[DIALOGUE: JAPANESE] Prioritize engaging, humorous, and emotionally resonant storytelling. Use natural, lively Japanese dialogue that fits the character's personality.";
+            strictRules = "[PROHIBITION: NO ENGLISH. Focus on high-quality, engaging manga narrative in Japanese.]";
         } else if (mode === "en") {
             modeInstruction = "[DIALOGUE: ENGLISH ONLY] Punchy English dialogue.";
             strictRules = "[PROHIBITION: NO JAPANESE. Only English text.]";
@@ -89,10 +89,15 @@
         }
 
         var endingInstruction = "";
-        if (ending === "funny") endingInstruction = "PANEL 4: Most effective comedic ending for " + features + ". Focus on dynamic pose/expression. Show a funny reaction.";
-        else if (ending === "emotional") endingInstruction = "PANEL 4: Most touching resolution for " + features + ".";
-        else if (ending === "calm") endingInstruction = "PANEL 4: Most cozy/relaxed conclusion. NO TEARS, NO WEEPING. Peaceful expression.";
-        else if (ending === "special") endingInstruction = "PANEL 4: Dramatic/Shocking reaction for " + features + ".";
+        if (ending === "funny") {
+            endingInstruction = "PANEL 4: High-impact comedic punchline. Prioritize bizarre, surreal, or hilariously exaggerated reactions. Avoid predictable 'shocked' faces.";
+        } else if (ending === "emotional") {
+            endingInstruction = "PANEL 4: Touching resolution. [VARIETY PROTOCOL: If you are tempted to draw a sunset or 'thank you' pose, override it with 70% probability to show a subtle, intimate moment, like a warm indoor light, a messy workspace with a small win, or a quiet, genuine smile.]";
+        } else if (ending === "calm") {
+            endingInstruction = "PANEL 4: Relaxed conclusion. [VARIETY PROTOCOL: If you are tempted to draw the character drinking a beverage, override it with 70% probability to show them just 'existing'—e.g., staring at a blank screen, tidying a corner, or looking out a window at night.]";
+        } else if (ending === "special") {
+            endingInstruction = "PANEL 4: The 'AI Analytical Punchline'. Show the character frozen, while the AI screen displays a cold, mocking, and unique analytical truth about the situation. Tone: professional, analytical, and condescending.";
+        }
 
         var finalPrompt = "[ASPECT RATIO 9:32]\n" + strictRules + "\n\n" +
             "Style: Cinematic Full-Color Manga. Character: " + features + "\n" +
@@ -101,7 +106,7 @@
             "PANEL 2: Close-up, dramatic reaction or facial expression.\n" +
             "PANEL 3: Medium shot, character action from a creative angle.\n" +
             endingInstruction + "\n" + modeInstruction + "\n\n" +
-            "[DYNAMIC CAMERA: Use varying camera angles (low-angle, high-angle, side view, close-ups) for each panel. Do NOT repeat the same composition across panels. Make it look like a dynamic comic book.]\n\n" +
+            "[DYNAMIC CAMERA: EACH PANEL MUST USE A COMPLETELY DIFFERENT COMPOSITIONAL STRATEGY. Avoid standard eye-level shots. Prioritize visual impact.]\n\n" +
             "[STORY]:\n" + text;
 
         document.getElementById('promptText').innerText = finalPrompt;
