@@ -96,6 +96,18 @@
         var ending = document.querySelector('input[name="endingType"]:checked').value;
         var text = document.getElementById('noteContent').value;
         
+        // 各種作画スタイルの英語プロンプト定義（修正箇所）
+        var stylePrompt = style;
+        if (style === "Cute Mascot") {
+            stylePrompt = "Soft Watercolor and Gentle Picture Book Style. Maintain adult character proportions, warm atmosphere, clean and soft lines.";
+        } else if (style === "Chibi") {
+            stylePrompt = "Super deformed (SD) Chibi Manga style. Small body, big head, very cute proportions.";
+        } else if (style === "American Comic") {
+            stylePrompt = "Pop Art American Comic style. Vivid, neon, and primary colors (like magenta, yellow, cyan). Bold, thick black outlines. Flat and clean color fields. Visible high-contrast Benday dots pattern (comic book dots) over the background. Ignore heavy, realistic shadows or detailed etching lines. Fun and energetic atmosphere.";
+        } else if (style === "Epic/Drama") {
+            stylePrompt = "Epic and intense Drama Manga style. Heavy deep shadows, dark tone, highly detailed line art, high contrast shading.";
+        }
+
         var modeInstruction = (mode === "ja") ? "[DIALOGUE: Japanese]" : (mode === "en" ? "[DIALOGUE: English]" : "[NO TEXT/BALLOONS]");
         var endingInstruction = "";
         if (ending === "funny") endingInstruction = "PANEL 4: High-impact comedic punchline. Prioritize bizarre, surreal, or hilariously exaggerated reactions.";
@@ -103,7 +115,7 @@
         else if (ending === "calm") endingInstruction = "PANEL 4: Relaxed conclusion. [VARIETY PROTOCOL: If you are tempted to draw a drink, override it with 70% probability to show them staring into space or tidying.]";
         else if (ending === "special") endingInstruction = "PANEL 4: The 'AI Analytical Punchline'. The AI screen displays a cold, mocking, and unique analytical truth. Tone: condescending.";
 
-        var finalPrompt = `[ASPECT RATIO 9:32]\nStyle: ${style} Manga. Character: ${features}\n\n` +
+        var finalPrompt = `[ASPECT RATIO 9:32]\nStyle: ${stylePrompt} Character: ${features}\n\n` +
             `[CRITICAL: Keep consistent background/context across 4 panels. Use character traits. IGNORE reference background/items.]\n\n` +
             `PANEL 1: Wide shot, establish setting based on story.\n` +
             `PANEL 2: Close-up, dramatic facial expression.\n` +
