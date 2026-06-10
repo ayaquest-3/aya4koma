@@ -20,17 +20,19 @@
         .input-group { text-align: left; margin-bottom: 18px; }
         label { font-size: 0.75rem; font-weight: 700; color: var(--text-gold); display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
         input[type="text"], textarea { width: 100%; padding: 12px; background: #1f1f23; border: 1px solid var(--border-color); border-radius: 12px; box-sizing: border-box; font-size: 15px; color: var(--text-main); }
-        
         .select-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
         .select-tile-label { text-align: center; cursor: pointer; position: relative; }
         .select-tile-label input[type="radio"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
         .select-tile { padding: 8px 4px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.65rem; font-weight: 700; background: #1f1f23; color: #a1a1aa; transition: 0.2s; }
         input[type="radio"]:checked + .select-tile { background: var(--accent-gold); border-color: transparent; color: #0d0d0f; font-weight: 800; }
-        
-        .btn-generate { background: var(--accent-gold); color: #0d0d0f; border: none; width: 100%; padding: 16px; border-radius: 30px; font-weight: 800; cursor: pointer; margin-top: 15px; }
+        .btn-generate { background: var(--accent-gold); color: #0d0d0f; border: none; width: 100%; padding: 16px; border-radius: 30px; font-weight: 800; cursor: pointer; margin-top: 15px; font-size: 1rem; }
         #result-area { display: none; margin-top: 25px; text-align: left; }
+        .section-label { font-size: 0.75rem; font-weight: 700; color: var(--text-gold); margin: 15px 0 6px 0; }
         .prompt-text { font-size: 0.8rem; line-height: 1.5; white-space: pre-wrap; color: #e4e4e7; background: #1f1f23; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
-        .btn-copy { background: transparent; color: var(--text-gold); border: 1px solid #d4af37; width: 100%; padding: 12px; border-radius: 25px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-copy { background: transparent; color: var(--text-gold); border: 1px solid #d4af37; width: 100%; padding: 12px; border-radius: 25px; font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 0.9rem; }
+        .btn-copy.copied { color: #aaa; border-color: #aaa; }
+        #canva-section { display: none; margin-top: 20px; }
+        .canva-divider { border: 0; border-top: 1px dashed #d4af37; margin: 20px 0; }
     </style>
 </head>
 <body>
@@ -62,7 +64,7 @@
             <label class="select-tile-label"><input type="radio" name="artStyle" value="Sketch"><div class="select-tile">✍️ スケッチ</div></label>
             <label class="select-tile-label"><input type="radio" name="artStyle" value="Epic/Drama"><div class="select-tile">🔥 濃厚</div></label>
         </div>
-        <div class="select-group" style="grid-template-columns: 1fr;">
+        <div class="select-group" style="grid-template-columns: 1fr; margin-top: 6px;">
             <label class="select-tile-label"><input type="radio" name="artStyle" value="American Comic"><div class="select-tile">🇺🇸 アメコミ風</div></label>
         </div>
     </div>
@@ -81,52 +83,103 @@
         <label>⑤ 原作テキスト</label>
         <textarea id="noteContent" rows="4"></textarea>
     </div>
+
     <button class="btn-generate" onclick="generateMangaPrompt()">最強プロンプトを召喚</button>
+
     <div id="result-area">
+        <div class="section-label">🖼️ 画像生成AIに貼り付ける呪文</div>
         <div id="promptText" class="prompt-text"></div>
-        <button class="btn-copy" onclick="copyToClipboard()">📋 コピー</button>
+        <button class="btn-copy" id="copyBtn1" onclick="doCopy('promptText','copyBtn1','📋 コピー')">📋 コピー</button>
+
+        <div id="canva-section">
+            <hr class="canva-divider">
+            <div class="section-label">🎨 Canva用セリフ召喚プロンプト（コピーしてAIに貼り付け→出てきたセリフをCanvaへ）</div>
+            <div id="scriptText" class="prompt-text"></div>
+            <button class="btn-copy" id="copyBtn2" onclick="doCopy('scriptText','copyBtn2','📋 セリフをコピー')">📋 セリフをコピー</button>
+        </div>
     </div>
 </div>
+
 <script>
-    function copyToClipboard() { navigator.clipboard.writeText(document.getElementById('promptText').innerText).then(() => alert("コピーしました✨")); }
-    function generateMangaPrompt() {
-        var features = document.getElementById('userFeatures').value;
-        var mode = document.querySelector('input[name="mangaMode"]:checked').value;
-        var style = document.querySelector('input[name="artStyle"]:checked').value;
-        var ending = document.querySelector('input[name="endingType"]:checked').value;
-        var text = document.getElementById('noteContent').value;
-        
-        // 各種作画スタイルの英語プロンプト定義（修正箇所）
-        var stylePrompt = style;
-        if (style === "Cute Mascot") {
-            stylePrompt = "Soft Watercolor and Gentle Picture Book Style. Maintain adult character proportions, warm atmosphere, clean and soft lines.";
-        } else if (style === "Chibi") {
-            stylePrompt = "Super deformed (SD) Chibi Manga style. Small body, big head, very cute proportions.";
-        } else if (style === "American Comic") {
-            stylePrompt = "Pop Art American Comic style. Vivid, neon, and primary colors (like magenta, yellow, cyan). Bold, thick black outlines. Flat and clean color fields. Visible high-contrast Benday dots pattern (comic book dots) over the background. Ignore heavy, realistic shadows or detailed etching lines. Fun and energetic atmosphere.";
-        } else if (style === "Epic/Drama") {
-            stylePrompt = "Epic and intense Drama Manga style. Heavy deep shadows, dark tone, highly detailed line art, high contrast shading.";
-        }
-
-        var modeInstruction = (mode === "ja") ? "[DIALOGUE: Japanese]" : (mode === "en" ? "[DIALOGUE: English]" : "[NO TEXT/BALLOONS]");
-        var endingInstruction = "";
-        if (ending === "funny") endingInstruction = "PANEL 4: High-impact comedic punchline. Prioritize bizarre, surreal, or hilariously exaggerated reactions.";
-        else if (ending === "emotional") endingInstruction = "PANEL 4: Touching resolution. [VARIETY PROTOCOL: If you are tempted to draw a sunset/thank you, override it with 70% probability to show an intimate, messy workspace moment.]";
-        else if (ending === "calm") endingInstruction = "PANEL 4: Relaxed conclusion. [VARIETY PROTOCOL: If you are tempted to draw a drink, override it with 70% probability to show them staring into space or tidying.]";
-        else if (ending === "special") endingInstruction = "PANEL 4: The 'AI Analytical Punchline'. The AI screen displays a cold, mocking, and unique analytical truth. Tone: condescending.";
-
-        var finalPrompt = `[ASPECT RATIO 9:32]\nStyle: ${stylePrompt} Character: ${features}\n\n` +
-            `[CRITICAL: Keep consistent background/context across 4 panels. Use character traits. IGNORE reference background/items.]\n\n` +
-            `PANEL 1: Wide shot, establish setting based on story.\n` +
-            `PANEL 2: Close-up, dramatic facial expression.\n` +
-            `PANEL 3: Medium shot, character action.\n` +
-            `${endingInstruction}\n${modeInstruction}\n\n` +
-            `[DYNAMIC CAMERA: EACH PANEL MUST USE DIFFERENT COMPOSITIONAL STRATEGY. Avoid standard eye-level shots.]\n\n` +
-            `[STORY]: ${text}`;
-        
-        document.getElementById('promptText').innerText = finalPrompt;
-        document.getElementById('result-area').style.display = "block";
+function doCopy(srcId, btnId, label) {
+    var text = document.getElementById(srcId).textContent;
+    var btn = document.getElementById(btnId);
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.cssText = "position:fixed;top:0;left:0;width:2px;height:2px;opacity:0;";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch(e) {}
+    document.body.removeChild(ta);
+    if (ok) {
+        btn.textContent = "✅ コピーしました！";
+        btn.classList.add("copied");
+        setTimeout(function() { btn.textContent = label; btn.classList.remove("copied"); }, 2000);
+    } else {
+        alert("長押しして手動でコピーしてね");
     }
+}
+
+function generateMangaPrompt() {
+    var features = document.getElementById('userFeatures').value;
+    var mode = document.querySelector('input[name="mangaMode"]:checked').value;
+    var style = document.querySelector('input[name="artStyle"]:checked').value;
+    var ending = document.querySelector('input[name="endingType"]:checked').value;
+    var text = document.getElementById('noteContent').value;
+
+    if (!features || !text) { alert("主人公の特徴と原作テキストを入力してね！"); return; }
+
+    var stylePrompt = style;
+    if (style === "Cute Mascot") {
+        stylePrompt = "Soft Watercolor and Gentle Picture Book Style. Maintain adult character proportions, warm atmosphere, clean and soft lines.";
+    } else if (style === "Chibi") {
+        stylePrompt = "Super deformed (SD) Chibi Manga style. Small body, big head, very cute proportions.";
+    } else if (style === "American Comic") {
+        stylePrompt = "Pop Art American Comic style. Vivid, neon, and primary colors (like magenta, yellow, cyan). Bold, thick black outlines. Flat and clean color fields. Visible high-contrast Benday dots pattern (comic book dots) over the background. Ignore heavy, realistic shadows or detailed etching lines. Fun and energetic atmosphere.";
+    } else if (style === "Epic/Drama") {
+        stylePrompt = "Epic and intense Drama Manga style. Heavy deep shadows, dark tone, highly detailed line art, high contrast shading.";
+    }
+
+    var modeInstruction = (mode === "ja") ? "[DIALOGUE: Japanese]" : (mode === "en" ? "[DIALOGUE: English]" : "[ABSOLUTE NO TEXT: No letters, bubbles, or symbols anywhere in the image.]");
+
+    var endingInstruction = "";
+    if (ending === "funny") endingInstruction = "PANEL 4: High-impact comedic punchline. Prioritize bizarre, surreal, or hilariously exaggerated reactions.";
+    else if (ending === "emotional") endingInstruction = "PANEL 4: Touching resolution. [VARIETY PROTOCOL: If you are tempted to draw a sunset/thank you, override it with 70% probability to show an intimate, messy workspace moment.]";
+    else if (ending === "calm") endingInstruction = "PANEL 4: Relaxed conclusion. [VARIETY PROTOCOL: If you are tempted to draw a drink, override it with 70% probability to show them staring into space or tidying.]";
+    else if (ending === "special") endingInstruction = "PANEL 4: The 'AI Analytical Punchline'. The AI screen displays a cold, mocking, and unique analytical truth. Tone: condescending.";
+
+    var finalPrompt = "[ASPECT RATIO 9:32]\nStyle: " + stylePrompt + " Character: " + features + "\n\n" +
+        "[CRITICAL: Keep consistent background/context across 4 panels. Use character traits. IGNORE reference background/items.]\n\n" +
+        "PANEL 1: Wide shot, establish setting based on story.\n" +
+        "PANEL 2: Close-up, dramatic facial expression.\n" +
+        "PANEL 3: Medium shot, character action.\n" +
+        endingInstruction + "\n" + modeInstruction + "\n\n" +
+        "[DYNAMIC CAMERA: EACH PANEL MUST USE DIFFERENT COMPOSITIONAL STRATEGY. Avoid standard eye-level shots.]\n\n" +
+        (mode !== "canva" ? "Each panel must include at least one dialogue or monologue. No panel without text.\n\n" : "") +
+        "[STORY]: " + text;
+
+    document.getElementById('promptText').textContent = finalPrompt;
+
+    if (mode === "canva") {
+        var scriptPrompt = "以下のストーリーを読んで、4コマ漫画用の最高にエモい日本語セリフを作ってください。\n\n" +
+            "【出力フォーマット】\n" +
+            "1コマ目（導入）：「セリフ」\n" +
+            "2コマ目（衝撃）：「セリフ」\n" +
+            "3コマ目（葛藤）：「セリフ」\n" +
+            "4コマ目（オチ）：「セリフ」\n\n" +
+            "【ルール】文字数は最小限。感情を爆発させて。説明セリフは厳禁。\n\n" +
+            "【ストーリー】\n" + text;
+        document.getElementById('scriptText').textContent = scriptPrompt;
+        document.getElementById('canva-section').style.display = "block";
+    } else {
+        document.getElementById('canva-section').style.display = "none";
+    }
+
+    document.getElementById('result-area').style.display = "block";
+}
 </script>
 </body>
 </html>
